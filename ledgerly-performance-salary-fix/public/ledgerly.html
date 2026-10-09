@@ -15,13 +15,13 @@
 :root,[data-theme=dark]{--bg:#0a1118;--bg2:#0f1a24;--card:rgba(255,255,255,.05);--card2:rgba(255,255,255,.09);--line:rgba(255,255,255,.09);--text:#eaf1f4;--muted:#8a9aa6;--inp:rgba(255,255,255,.06);--shadow:0 18px 50px rgba(0,0,0,.45);--ovl:rgba(3,8,12,.66)}
 [data-theme=light]{--bg:#eef3f4;--bg2:#e4ecee;--card:rgba(255,255,255,.9);--card2:#fff;--line:rgba(14,40,50,.1);--text:#0f2128;--muted:#5d727c;--inp:rgba(14,40,50,.05);--shadow:0 14px 40px rgba(20,60,80,.14);--ovl:rgba(15,33,40,.45)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
+html{scroll-behavior:auto;scrollbar-gutter:stable}
 body{font:15px/1.5 var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .3s}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0}
 :focus-visible{outline:2px solid var(--acc2);outline-offset:2px;border-radius:8px}
 .orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.orbs i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(90px);opacity:.28;animation:drift 26s ease-in-out infinite alternate}
+.orbs i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(70px);opacity:.28;animation:none;transform:translateZ(0);contain:paint}
 .orbs i:nth-child(1){background:var(--acc);top:-18vmax;left:-12vmax}
 .orbs i:nth-child(2){background:var(--acc2);bottom:-22vmax;right:-14vmax;animation-delay:-9s}
 [data-theme=light] .orbs i{opacity:.16}
@@ -275,10 +275,25 @@ function parseSlip(text,fname=''){
  if(net==null&&gross!=null&&ded!=null)net=+(gross-ded).toFixed(2);
  if(ded==null&&gross!=null&&net!=null&&gross>=net)ded=+(gross-net).toFixed(2);
  if(gross==null&&net!=null&&ded!=null)gross=+(net+ded).toFixed(2);
- let month=null,m;const src=text+' '+fname;
- if(m=src.match(new RegExp('\\b('+MN+')[a-z]*[\\s,.\'\\-_/]*(\\d{4}|\\d{2})\\b','i')))month=`${fullYear(+m[2])}-${pad(mIdx(m[1])+1)}`;
- else if(m=src.match(/\b(\d{4})[-_/](\d{2})\b/))month=`${m[1]}-${m[2]}`;
- else if(m=src.match(/\b(0?[1-9]|1[0-2])[-_/](\d{4})\b/))month=`${m[2]}-${pad(+m[1])}`;
+ // Determine the salary period carefully. Prefer an explicitly labelled period
+ // in the PDF text; then a month/date embedded in the filename; only then a
+ // generic month/year found in the PDF text (which may be a generated date).
+ let month=null,m;
+ const labeled=text.match(/(?:salary\s*(?:month|period|for)|pay\s*period|period\s*of\s*salary|month\s*of\s*salary|payroll\s*month)\s*[:#\-]?\s*([^\n\r]{0,45})/i);
+ const labelledSource=labeled?labeled[1]:'';
+ const monthPattern=new RegExp('\\b('+MN+')[a-z]*[\\s,.\'\\-_/]*(\\d{4}|\\d{2})\\b','i');
+ const yearMonthPattern=/\b(20\d{2})[-_/](0?[1-9]|1[0-2])(?:[-_/]\d{1,2})?\b/;
+ const monthYearNumeric=/\b(0?[1-9]|1[0-2])[-_/](20\d{2})\b/;
+ const extractMonth=src=>{
+   let q;
+   if(q=src.match(monthPattern))return `${fullYear(+q[2])}-${pad(mIdx(q[1])+1)}`;
+   if(q=src.match(yearMonthPattern))return `${q[1]}-${pad(+q[2])}`;
+   if(q=src.match(monthYearNumeric))return `${q[2]}-${pad(+q[1])}`;
+   return null;
+ };
+ month=extractMonth(labelledSource);
+ if(!month)month=extractMonth(fname);
+ if(!month)month=extractMonth(text);
  return{net,gross,ded,month,found}}
 function parseBill(text){
  const lines=text.split('\n').map(s=>s.trim()).filter(s=>s.length>1);
@@ -396,7 +411,7 @@ function vDash(){const[a,b]=rng(P.mode,P.ref),list=inR(a,b),t=tot(list),pr=rng(P
  const hr=new Date().getHours(),greet=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';let n=0;
  const kpi=(l,v,cls,sub,i,extra='')=>`<div class="card kpi hov rise ${extra}" style="--i:${n++}"><div class="kl">${ic(i,18)}<span>${l}</span></div><b class="num ${cls}" data-count="${v}">${money(v)}</b><small>${sub}</small></div>`;
  const html=`${head(greet,'Here is where your money stands.',`<button class="btn pri" data-act="add">${ic('plus',18)} Add entry</button>`)}${pbar()}
- <div class="grid k4">${kpi('Money in',t.in,'in',delta(t.in,pt.in,false),'down')}${kpi('Money out',t.out,'out',delta(t.out,pt.out,true),'up')}${kpi('Saved this '+P.mode,net,net>=0?'in':'out',rate===null?'No income recorded':`${rate}% of income kept`,'wallet')}${kpi('Total balance',bal,bal>=0?'':'out','All time, every entry','sparkle','hero')}</div>
+ <div class="grid k4">${kpi('Money in',t.in,'in',delta(t.in,pt.in,false),'down')}${kpi('Money out',t.out,'out',delta(t.out,pt.out,true),'up')}${kpi('Net this '+P.mode,net,net>=0?'in':'out',rate===null?'No income recorded':`${rate}% of recorded income remains`,'wallet')}${kpi('Recorded balance',bal,bal>=0?'':'out','Recorded income − recorded expenses','sparkle','hero')}</div>
  <div class="grid g2" style="margin-top:16px"><div class="card rise" style="--i:4"><h3>${P.mode==='year'?'Month by month':P.mode==='month'?'Day by day':'Last 7 days'}<span class="legend"><span><i style="background:var(--in)"></i>In</span><span><i style="background:var(--out)"></i>Out</span></span></h3><div class="chart">${barsSVG(bk)}</div><div class="cinfo">Tap or hover a bar for exact numbers.</div></div>
  <div class="card rise" style="--i:5"><h3>Where it went</h3>${donutHTML(byCat(list),t.out)}</div></div>
  <div class="grid g2b" style="margin-top:16px"><div class="card rise" style="--i:6"><h3>Smart insights</h3><div class="ins">${insights(list,t,a,b).map(([e,x],i)=>`<div style="--i:${i}"><em>${e}</em><span>${x}</span></div>`).join('')}</div></div>
