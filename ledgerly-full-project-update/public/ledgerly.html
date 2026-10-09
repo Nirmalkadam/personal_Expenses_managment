@@ -15,13 +15,13 @@
 :root,[data-theme=dark]{--bg:#0a1118;--bg2:#0f1a24;--card:rgba(255,255,255,.05);--card2:rgba(255,255,255,.09);--line:rgba(255,255,255,.09);--text:#eaf1f4;--muted:#8a9aa6;--inp:rgba(255,255,255,.06);--shadow:0 18px 50px rgba(0,0,0,.45);--ovl:rgba(3,8,12,.66)}
 [data-theme=light]{--bg:#eef3f4;--bg2:#e4ecee;--card:rgba(255,255,255,.9);--card2:#fff;--line:rgba(14,40,50,.1);--text:#0f2128;--muted:#5d727c;--inp:rgba(14,40,50,.05);--shadow:0 14px 40px rgba(20,60,80,.14);--ovl:rgba(15,33,40,.45)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:auto;scrollbar-gutter:stable}
+html{scroll-behavior:smooth}
 body{font:15px/1.5 var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .3s}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0}
 :focus-visible{outline:2px solid var(--acc2);outline-offset:2px;border-radius:8px}
 .orbs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
-.orbs i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(70px);opacity:.28;animation:none;transform:translateZ(0);contain:paint}
+.orbs i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(90px);opacity:.28;animation:drift 26s ease-in-out infinite alternate}
 .orbs i:nth-child(1){background:var(--acc);top:-18vmax;left:-12vmax}
 .orbs i:nth-child(2){background:var(--acc2);bottom:-22vmax;right:-14vmax;animation-delay:-9s}
 [data-theme=light] .orbs i{opacity:.16}
@@ -60,6 +60,12 @@ main{min-width:0;padding:26px clamp(14px,3vw,38px) 120px;max-width:1280px;width:
 .hero{background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 30%,var(--card)),color-mix(in srgb,var(--acc2) 18%,var(--card)));border-color:color-mix(in srgb,var(--acc) 35%,var(--line))}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:13px;font-weight:600;background:var(--card2);border:1px solid var(--line);transition:transform .2s var(--spring),background .2s,box-shadow .2s;white-space:nowrap}
 .btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.96)}
+a.btn,a.btn:link,a.btn:visited,a.btn:hover,a.btn:active{color:var(--text);text-decoration:none}
+a.btn{display:flex;align-items:center;width:100%;min-height:48px;justify-content:flex-start;gap:10px;border-radius:13px}
+a.btn svg{flex-shrink:0;color:currentColor}
+.friends-frame-wrap{width:100%;min-width:0;overflow:visible;border:1px solid var(--line);border-radius:20px;background:var(--bg);}
+.friends-frame{display:block;width:100%;height:900px;border:0;border-radius:20px;background:var(--bg);overflow:hidden}
+.friends-loading{padding:20px;color:var(--muted)}
 .btn.pri{background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,var(--acc2)));color:#fff;border:0;box-shadow:0 8px 22px color-mix(in srgb,var(--acc) 40%,transparent)}
 .btn.danger{color:var(--out)}.btn.sm{padding:7px 11px;font-size:13.5px;border-radius:11px}.btn[disabled]{opacity:.5;pointer-events:none}
 .ib{width:34px;height:34px;display:inline-grid;place-items:center;border-radius:10px;color:var(--muted);transition:all .2s}
@@ -212,7 +218,7 @@ const toMinor=v=>{const n=parseFloat(String(v).replace(/,/g,''));return isFinite
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 /* ============ icons ============ */
-const ICONS={home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',wallet:'<rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M16 15h2"/>',scan:'<path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"/>',chart:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',cog:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',plus:'<path d="M12 5v14M5 12h14"/>',edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',x:'<path d="M18 6L6 18M6 6l12 12"/>',chevL:'<path d="M15 18l-6-6 6-6"/>',chevR:'<path d="M9 18l6-6-6-6"/>',download:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',upload:'<path d="M12 15V3M7 8l5-5 5 5M4 21h16"/>',file:'<path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',moon:'<path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>',camera:'<path d="M3 8a2 2 0 012-2h2l2-3h6l2 3h2a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="13" r="4"/>',dots:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',repeat:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 01-3 3H3"/>',eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',down:'<path d="M7 7l10 10M17 7v10H7"/>',up:'<path d="M17 17L7 7M7 17V7h10"/>',printer:'<path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/>'};
+const ICONS={users:'<path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>',home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',wallet:'<rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20M16 15h2"/>',scan:'<path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M7 12h10"/>',chart:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',cog:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',plus:'<path d="M12 5v14M5 12h14"/>',edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',x:'<path d="M18 6L6 18M6 6l12 12"/>',chevL:'<path d="M15 18l-6-6 6-6"/>',chevR:'<path d="M9 18l6-6-6-6"/>',download:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',upload:'<path d="M12 15V3M7 8l5-5 5 5M4 21h16"/>',file:'<path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',moon:'<path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>',camera:'<path d="M3 8a2 2 0 012-2h2l2-3h6l2 3h2a2 2 0 012 2v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="13" r="4"/>',dots:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',repeat:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 013-3h15M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 01-3 3H3"/>',eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',down:'<path d="M7 7l10 10M17 7v10H7"/>',up:'<path d="M17 17L7 7M7 17V7h10"/>',printer:'<path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/>'};
 const ic=(n,s=20)=>`<svg class="i" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
 
 /* ============ categories ============ */
@@ -275,25 +281,10 @@ function parseSlip(text,fname=''){
  if(net==null&&gross!=null&&ded!=null)net=+(gross-ded).toFixed(2);
  if(ded==null&&gross!=null&&net!=null&&gross>=net)ded=+(gross-net).toFixed(2);
  if(gross==null&&net!=null&&ded!=null)gross=+(net+ded).toFixed(2);
- // Determine the salary period carefully. Prefer an explicitly labelled period
- // in the PDF text; then a month/date embedded in the filename; only then a
- // generic month/year found in the PDF text (which may be a generated date).
- let month=null,m;
- const labeled=text.match(/(?:salary\s*(?:month|period|for)|pay\s*period|period\s*of\s*salary|month\s*of\s*salary|payroll\s*month)\s*[:#\-]?\s*([^\n\r]{0,45})/i);
- const labelledSource=labeled?labeled[1]:'';
- const monthPattern=new RegExp('\\b('+MN+')[a-z]*[\\s,.\'\\-_/]*(\\d{4}|\\d{2})\\b','i');
- const yearMonthPattern=/\b(20\d{2})[-_/](0?[1-9]|1[0-2])(?:[-_/]\d{1,2})?\b/;
- const monthYearNumeric=/\b(0?[1-9]|1[0-2])[-_/](20\d{2})\b/;
- const extractMonth=src=>{
-   let q;
-   if(q=src.match(monthPattern))return `${fullYear(+q[2])}-${pad(mIdx(q[1])+1)}`;
-   if(q=src.match(yearMonthPattern))return `${q[1]}-${pad(+q[2])}`;
-   if(q=src.match(monthYearNumeric))return `${q[2]}-${pad(+q[1])}`;
-   return null;
- };
- month=extractMonth(labelledSource);
- if(!month)month=extractMonth(fname);
- if(!month)month=extractMonth(text);
+ let month=null,m;const src=text+' '+fname;
+ if(m=src.match(new RegExp('\\b('+MN+')[a-z]*[\\s,.\'\\-_/]*(\\d{4}|\\d{2})\\b','i')))month=`${fullYear(+m[2])}-${pad(mIdx(m[1])+1)}`;
+ else if(m=src.match(/\b(\d{4})[-_/](\d{2})\b/))month=`${m[1]}-${m[2]}`;
+ else if(m=src.match(/\b(0?[1-9]|1[0-2])[-_/](\d{4})\b/))month=`${m[2]}-${pad(+m[1])}`;
  return{net,gross,ded,month,found}}
 function parseBill(text){
  const lines=text.split('\n').map(s=>s.trim()).filter(s=>s.length>1);
@@ -343,7 +334,7 @@ function download(name,data,type){const b=data instanceof Blob?data:new Blob([da
 function countUp(root=document){$$('[data-count]',root).forEach(el=>{const to=+el.dataset.count;if(!to||matchMedia('(prefers-reduced-motion:reduce)').matches){el.textContent=money(to);return}const t0=performance.now(),D=800;const f=t=>{const p=Math.min(1,(t-t0)/D),e=1-Math.pow(1-p,4);el.textContent=money(Math.round(to*e));if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)})}
 
 /* ============ shell + router ============ */
-const NAV=[['dashboard','Dashboard','home'],['tx','Transactions','list'],['calendar','Calendar','calendar'],['salary','Salary slips','wallet'],['scan','Scanner','scan'],['reports','Reports','chart'],['plan','Budgets & repeats','target'],['settings','Settings','cog']];
+const NAV=[['dashboard','Dashboard','home'],['tx','Transactions','list'],['calendar','Calendar','calendar'],['salary','Salary slips','wallet'],['friends','Friends Share','users'],['scan','Scanner','scan'],['reports','Reports','chart'],['plan','Budgets & repeats','target'],['settings','Settings','cog']];
 const ACCENTS=[['#5b7cff','#27d3c3'],['#a66bff','#ff7eb6'],['#ff8a4c','#ffc15a'],['#1fbf75','#4cc9f0'],['#ff5d8f','#ffb36b']];
 let route='dashboard';
 function applyTheme(){const st=S.settings;document.documentElement.dataset.theme=st.theme;const a=ACCENTS[st.accent]||ACCENTS[0];document.documentElement.style.setProperty('--acc',a[0]);document.documentElement.style.setProperty('--acc2',a[1]);$('meta[name=theme-color]').content=st.theme==='dark'?'#0a1118':'#eef3f4'}
@@ -411,7 +402,7 @@ function vDash(){const[a,b]=rng(P.mode,P.ref),list=inR(a,b),t=tot(list),pr=rng(P
  const hr=new Date().getHours(),greet=hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';let n=0;
  const kpi=(l,v,cls,sub,i,extra='')=>`<div class="card kpi hov rise ${extra}" style="--i:${n++}"><div class="kl">${ic(i,18)}<span>${l}</span></div><b class="num ${cls}" data-count="${v}">${money(v)}</b><small>${sub}</small></div>`;
  const html=`${head(greet,'Here is where your money stands.',`<button class="btn pri" data-act="add">${ic('plus',18)} Add entry</button>`)}${pbar()}
- <div class="grid k4">${kpi('Money in',t.in,'in',delta(t.in,pt.in,false),'down')}${kpi('Money out',t.out,'out',delta(t.out,pt.out,true),'up')}${kpi('Net this '+P.mode,net,net>=0?'in':'out',rate===null?'No income recorded':`${rate}% of recorded income remains`,'wallet')}${kpi('Recorded balance',bal,bal>=0?'':'out','Recorded income − recorded expenses','sparkle','hero')}</div>
+ <div class="grid k4">${kpi('Money in',t.in,'in',delta(t.in,pt.in,false),'down')}${kpi('Money out',t.out,'out',delta(t.out,pt.out,true),'up')}${kpi('Saved this '+P.mode,net,net>=0?'in':'out',rate===null?'No income recorded':`${rate}% of income kept`,'wallet')}${kpi('Total balance',bal,bal>=0?'':'out','All time, every entry','sparkle','hero')}</div>
  <div class="grid g2" style="margin-top:16px"><div class="card rise" style="--i:4"><h3>${P.mode==='year'?'Month by month':P.mode==='month'?'Day by day':'Last 7 days'}<span class="legend"><span><i style="background:var(--in)"></i>In</span><span><i style="background:var(--out)"></i>Out</span></span></h3><div class="chart">${barsSVG(bk)}</div><div class="cinfo">Tap or hover a bar for exact numbers.</div></div>
  <div class="card rise" style="--i:5"><h3>Where it went</h3>${donutHTML(byCat(list),t.out)}</div></div>
  <div class="grid g2b" style="margin-top:16px"><div class="card rise" style="--i:6"><h3>Smart insights</h3><div class="ins">${insights(list,t,a,b).map(([e,x],i)=>`<div style="--i:${i}"><em>${e}</em><span>${x}</span></div>`).join('')}</div></div>
@@ -615,14 +606,15 @@ function vSettings(){const st=S.settings,html=`${head('Settings','Make Ledgerly 
  <div class="setrow"><div>Delete everything<small>Cannot be undone</small></div><button class="btn danger" data-act="wipe">${ic('trash',16)} Delete all</button></div></div></div>`;
  return{html,mount:el=>{$('#cur',el).onchange=e=>{S.settings.cur=e.target.value;save();setNF();toast('Currency updated','ok')};$('#rest',el).onchange=e=>{if(e.target.files[0])importBackup(e.target.files[0])}}}}
 
-const VIEWS={dashboard:vDash,tx:vTx,calendar:vCal,salary:vSalary,scan:vScan,reports:vReports,plan:vPlan,settings:vSettings};
+function vFriends(){return{html:`${head('Friends Share','Track shared outings, split expenses fairly, and export a PDF report.')}<div class="friends-frame-wrap"><div class="friends-loading" id="friends-loading">Loading Friends Share…</div><iframe class="friends-frame" id="friends-frame" src="/friends-share.html" title="Ledgerly Friends Share" loading="lazy" scrolling="no"></iframe></div>`,mount:el=>{const frame=$('#friends-frame',el),loading=$('#friends-loading',el);let lastHeight=0;const resize=e=>{if(e.source!==frame.contentWindow||!e.data||e.data.type!=='ledgerly-friends-height')return;const h=Math.max(650,Math.min(12000,Number(e.data.height)||900));if(Math.abs(h-lastHeight)>2){lastHeight=h;frame.style.height=h+'px'}if(loading)loading.style.display='none'};window.addEventListener('message',resize);frame.addEventListener('load',()=>{try{frame.contentWindow.postMessage({type:'ledgerly-friends-request-height'},location.origin)}catch(e){}});return()=>window.removeEventListener('message',resize)}}}
+const VIEWS={dashboard:vDash,tx:vTx,calendar:vCal,salary:vSalary,friends:vFriends,scan:vScan,reports:vReports,plan:vPlan,settings:vSettings};
 const byId=(arr,id)=>arr.find(x=>x.id===id);
 const ACT={
  theme(){S.settings.theme=S.settings.theme==='dark'?'light':'dark';save();applyTheme();if(route==='settings')render(true)},
  settheme(b){S.settings.theme=b.dataset.v;save();applyTheme();render(true)},
  accent(b){S.settings.accent=+b.dataset.v;save();applyTheme();render(true)},
  setweek(b){S.settings.weekStart=+b.dataset.v;save();render(true)},
- more(){openModal(`<h2>More<button class="ib" data-close aria-label="Close">${ic('x')}</button></h2><div class="grid" style="gap:8px">${NAV.slice(4).map(([k,l,i])=>`<a class="btn" style="justify-content:flex-start" href="#/${k}" data-close>${ic(i)} ${l}</a>`).join('')}</div>`)},
+ more(){openModal(`<h2>More<button class="ib" data-close aria-label="Close">${ic('x')}</button></h2><div class="grid" style="gap:8px">${NAV.slice(4).map(([k,l,i])=>`<a class="btn more-nav-link" style="justify-content:flex-start" href="#/${k}" data-close>${ic(i)} ${l}</a>`).join('')}</div>`)},
  add(b){txModal({},{date:b&&b.dataset&&b.dataset.d?b.dataset.d:(route==='calendar'?CAL.sel:undefined)})},
  edit(b,id){const t=byId(S.tx,id);if(!t)return;if(t.salaryId){const r=byId(S.salary,t.salaryId);if(r)return salaryModal(r)}txModal(t)},
  del(b,id){deleteTx(id)},viewfile(b){const f=b.dataset.f,t=S.tx.find(x=>x.fileId===f);viewFile(f,(t&&t.note)||'Attachment')},
