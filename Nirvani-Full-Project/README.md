@@ -22,3 +22,6 @@ npm run dev
 ## Data storage
 
 The app stores entries in the current browser's local storage/IndexedDB. It does not automatically sync data between devices. Use the in-app backup/restore feature to transfer data.
+
+
+SplitSpace PDF export fix: the Export PDF button is now placed beside Scan / attach bill and Add manually in the Expenses section. It uses the existing report-generation handler.
