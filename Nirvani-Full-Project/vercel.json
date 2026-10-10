@@ -1,3 +1,4 @@
+
 {
   "headers": [
     {
@@ -16,6 +17,13 @@
           "value": "camera=(self)"
         }
       ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/ledgerly.html",
+      "destination": "/",
+      "permanent": true
     }
   ],
   "rewrites": [
