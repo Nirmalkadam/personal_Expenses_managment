@@ -1,31 +1,24 @@
 # Nirvani — Personal Money Tracker
 
-Complete Vite + React + Vercel project source. The main tracker and integrated SplitSpace group-bill feature are in `public/ledgerly.html`. The entry app loads that file through `src/App.jsx`.
+This project serves the Nirvani application directly from the root `index.html`. It does not embed the app in an iframe, so the address should stay at `/` and mobile viewport/navigation behavior is not affected by an extra iframe layer.
 
-## Requirements
-- Node.js 18 or newer
-- npm
+## Deploy to Vercel
+
+1. Upload/commit the contents of this folder to the root of your GitHub repository (the `package.json`, `index.html`, `public/`, and `src/` must be at the repository root, not nested inside another folder).
+2. In Vercel → Project Settings → Build and Deployment, set Root Directory to `./` (repository root).
+3. Framework Preset: Vite; Build Command: `npm run build`; Output Directory: `dist`; Install Command: `npm install`.
+4. Push to the production branch and wait for the Production deployment to show Ready.
+5. Open https://nirvani.vercel.app/.
+
+`public/ledgerly.html` is retained as a backup/legacy copy. The root `index.html` is now the actual app, so the URL does not need to route through `/ledgerly.html`.
 
 ## Run locally
+
 ```bash
 npm install
 npm run dev
 ```
-Open the local URL shown in the terminal.
 
-## Production build
-```bash
-npm run build
-npm run preview
-```
+## Data storage
 
-## Deploy on Vercel
-- Set the project root to this folder (the folder containing `package.json`).
-- Framework preset: Vite
-- Build command: `npm run build`
-- Output directory: `dist`
-
-## Notes
-- The app's current data storage is browser local storage; it does not automatically synchronize data between devices.
-- Keep a backup of your existing project before replacing files.
-- The integrated app source is `public/ledgerly.html`; its filename remains unchanged because the app loads it at `/ledgerly.html`.
+The app stores entries in the current browser's local storage/IndexedDB. It does not automatically sync data between devices. Use the in-app backup/restore feature to transfer data.
