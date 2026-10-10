@@ -1,27 +1,11 @@
-# Nirvani — Personal Money Tracker
+# Nirvani mobile scanner and SplitSpace form fixes
 
-This project serves the Nirvani application directly from the root `index.html`. It does not embed the app in an iframe, so the address should stay at `/` and mobile viewport/navigation behavior is not affected by an extra iframe layer.
+This update addresses two mobile issues:
 
-## Deploy to Vercel
+- Camera photos are resized to a maximum 2200–2400 px edge before OCR, reducing memory use for high-resolution phone-camera images. Gallery images use the same path.
+- The SplitSpace add-bill modal has a mobile-height limit and scrollable area that ends above Nirvani's fixed bottom navigation, keeping Save bill reachable.
 
-1. Upload/commit the contents of this folder to the root of your GitHub repository (the `package.json`, `index.html`, `public/`, and `src/` must be at the repository root, not nested inside another folder).
-2. In Vercel → Project Settings → Build and Deployment, set Root Directory to `./` (repository root).
-3. Framework Preset: Vite; Build Command: `npm run build`; Output Directory: `dist`; Install Command: `npm install`.
-4. Push to the production branch and wait for the Production deployment to show Ready.
-5. Open https://nirvani.vercel.app/.
+## Deploy
+Replace the repository root `index.html` and `public/ledgerly.html` with the included versions, keep the remaining project files and paths unchanged, commit, and wait for Vercel deployment.
 
-`public/ledgerly.html` is retained as a backup/legacy copy. The root `index.html` is now the actual app, so the URL does not need to route through `/ledgerly.html`.
-
-## Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-## Data storage
-
-The app stores entries in the current browser's local storage/IndexedDB. It does not automatically sync data between devices. Use the in-app backup/restore feature to transfer data.
-
-
-SplitSpace PDF export fix: the Export PDF button is now placed beside Scan / attach bill and Add manually in the Expenses section. It uses the existing report-generation handler.
+Note: OCR still depends on loading Tesseract.js from the internet. Some unsupported formats (for example, certain HEIC images in browsers that cannot decode them) may need to be converted to JPG.
