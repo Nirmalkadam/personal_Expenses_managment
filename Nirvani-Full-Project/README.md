@@ -1,14 +1,16 @@
-# Nirvani – Calendar, Budgets & SplitSpace update
+# Nirvani Receipt Scanner Update
 
-This update fixes the mobile Calendar layout, improves SplitSpace contrast in light theme, and upgrades Budgets & repeats.
+This update changes the active scanner files used by the Vite app:
 
-## What changed
-- Calendar: the month grid and selected-day details stack on phones instead of being squeezed side by side.
-- SplitSpace: light theme uses readable light surfaces and dark text for group names and member chips.
-- Budgets: explicit Save budgets button, per-category progress, amount remaining/over limit, overall totals, selectable dashboard alert threshold (70/80/90/100%), and a clear-all action that does not delete transactions.
-- Repeats: active-rule count, estimated monthly commitment, upcoming scheduled entries, and clearer explanation of automatic posting.
+- `public/ledgerly.html` — Nirvani scanner and the embedded SplitSpace scanner
+- `public/friends-share.html` — standalone SplitSpace page
+
+Changes include a more reliable selection of labelled decimal amounts and camera inputs that are visually hidden rather than `display:none`, which improves compatibility with mobile browsers' camera/file capture UI.
 
 ## Deploy
-Replace the root `index.html` and `public/ledgerly.html` in the existing repository, keep all other project files/folders unchanged, then commit and wait for Vercel to deploy.
+1. Replace the matching files in your repository while keeping the folder structure.
+2. Commit and push to GitHub.
+3. Wait for Vercel's deployment to finish successfully.
+4. Open the deployed site in a private/incognito tab or clear the site cache before testing.
 
-All information remains in this browser's local storage. Dashboard alerts appear when you open Nirvani; this standalone app does not send push notifications while closed.
+OCR results still depend on the photo quality and the receipt's labels. Verify extracted values before saving. This ZIP has JavaScript syntax checks but has not been physically tested on your phone camera.
