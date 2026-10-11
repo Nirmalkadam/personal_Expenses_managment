@@ -1,11 +1,14 @@
-# Nirvani mobile scanner and SplitSpace form fixes
+# Nirvani – Calendar, Budgets & SplitSpace update
 
-This update addresses two mobile issues:
+This update fixes the mobile Calendar layout, improves SplitSpace contrast in light theme, and upgrades Budgets & repeats.
 
-- Camera photos are resized to a maximum 2200–2400 px edge before OCR, reducing memory use for high-resolution phone-camera images. Gallery images use the same path.
-- The SplitSpace add-bill modal has a mobile-height limit and scrollable area that ends above Nirvani's fixed bottom navigation, keeping Save bill reachable.
+## What changed
+- Calendar: the month grid and selected-day details stack on phones instead of being squeezed side by side.
+- SplitSpace: light theme uses readable light surfaces and dark text for group names and member chips.
+- Budgets: explicit Save budgets button, per-category progress, amount remaining/over limit, overall totals, selectable dashboard alert threshold (70/80/90/100%), and a clear-all action that does not delete transactions.
+- Repeats: active-rule count, estimated monthly commitment, upcoming scheduled entries, and clearer explanation of automatic posting.
 
 ## Deploy
-Replace the repository root `index.html` and `public/ledgerly.html` with the included versions, keep the remaining project files and paths unchanged, commit, and wait for Vercel deployment.
+Replace the root `index.html` and `public/ledgerly.html` in the existing repository, keep all other project files/folders unchanged, then commit and wait for Vercel to deploy.
 
-Note: OCR still depends on loading Tesseract.js from the internet. Some unsupported formats (for example, certain HEIC images in browsers that cannot decode them) may need to be converted to JPG.
+All information remains in this browser's local storage. Dashboard alerts appear when you open Nirvani; this standalone app does not send push notifications while closed.
