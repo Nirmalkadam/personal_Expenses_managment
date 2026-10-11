@@ -14,3 +14,10 @@ Changes include a more reliable selection of labelled decimal amounts and camera
 4. Open the deployed site in a private/incognito tab or clear the site cache before testing.
 
 OCR results still depend on the photo quality and the receipt's labels. Verify extracted values before saving. This ZIP has JavaScript syntax checks but has not been physically tested on your phone camera.
+
+
+## Recent behavior changes
+- Salary slip uploads are processed for extraction, but the original PDF is not saved with salary records.
+- Ordinary manual transactions categorized as Salary are also reflected in the Salary slips monthly summaries.
+- SplitSpace receipt images are used for reading and are not persisted with saved expenses.
+- SplitSpace receipt status displays scanning progress messages.
